@@ -4,10 +4,10 @@ python:
 # command to install dependencies
 before_install:
   - sudo apt-get update
-  - sudo apt-get install python-pip openjdk-7-jdk
+  - sudo apt-get install openjdk-7-jdk
 
 install:
-  - pip install --upgrade cython --use-mirrors
+  - easy_install Cython
   - make build_ext
 
 # command to run tests
