@@ -12,15 +12,10 @@ java: $(java_src:.java=.class)
 html:
 	$(MAKE) -C docs html
 
-tests: build_ext
-	cd tests && javac org/jnius/HelloWorld.java
-	cd tests && javac org/jnius/BasicsTest.java
-	cd tests && javac org/jnius/MultipleMethods.java
-	cd tests && javac org/jnius/SimpleEnum.java
-	cd tests && javac org/jnius/InterfaceWithPublicEnum.java
-	cd tests && javac org/jnius/ClassArgument.java
-	cd tests && javac org/jnius/MultipleDimensions.java
-	cd tests && env PYTHONPATH=..:$(PYTHONPATH) CLASSPATH=".:../jnius/src" nosetests-2.7 -v
+java_test_src = $(wildcard tests/org/jnius/*.java)
+
+test: build_ext $(java_test_src:.java=.class)
+	python setup.py test
 
 %.class: %.java
 	javac $<

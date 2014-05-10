@@ -1,7 +1,5 @@
+import unittest
 from jnius import autoclass, java_method, PythonJavaClass, cast
-
-print '1: declare a TestImplem that implement Collection'
-
 
 class TestImplemIterator(PythonJavaClass):
     __javainterfaces__ = [
@@ -15,7 +13,7 @@ class TestImplemIterator(PythonJavaClass):
 
     @java_method('()Z')
     def hasNext(self):
-        return self.index < len(self.collection.data) - 1
+        return self.index < len(self.collection.data)
 
     @java_method('()Ljava/lang/Object;')
     def next(self):
@@ -95,48 +93,23 @@ class TestImplem(PythonJavaClass):
         it = TestImplemIterator(self, index)
         return it
 
+class ProxyTest(unittest.TestCase):
+    def test_proxy(self):
+        collection = range(10)
+        a = TestImplem(*collection)
 
-print '2: instanciate the class, with some data'
-a = TestImplem(*range(10))
-print a
-print dir(a)
+        out = []
+        iterator = a.listIterator()
+        while iterator.hasNext():
+            out.append(iterator.next())
+        self.assertEqual(out, collection)
 
-print 'tries to get a ListIterator'
-iterator = a.listIterator()
-print 'iterator is', iterator
-while iterator.hasNext():
-    print 'at index', iterator.index, 'value is', iterator.next()
+        Collections = autoclass('java.util.Collections')
+        self.assertEqual(max(collection), Collections.max(a))
 
-print '3: Do cast to a collection'
-a2 = cast('java/util/Collection', a.j_self)
-print a2
+        Collections.reverse(a)
+        collection.reverse()
 
-print '4: Try few method on the collection'
-Collections = autoclass('java.util.Collections')
-#print Collections.enumeration(a)
-#print Collections.enumeration(a)
-ret = Collections.max(a)
+        a2 = cast('java/util/Collection', a.j_self)
 
-print "reverse"
-print Collections.reverse(a)
-print a.data
-
-print "before swap"
-print Collections.swap(a, 2, 3)
-print "after swap"
-print a.data
-
-print "rotate"
-print Collections.rotate(a, 5)
-print a.data
-
-print 'Order of data before shuffle()', a.data
-print Collections.shuffle(a)
-print 'Order of data after shuffle()', a.data
-
-
-# XXX We have issues for methosd with multiple signature
-print '-> Collections.max(a)'
-print Collections.max(a2)
-#print '-> Collections.shuffle(a)'
-#print Collections.shuffle(a2)
+        self.assertEqual(collection, a2.toArray())

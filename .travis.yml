@@ -8,8 +8,8 @@ before_install:
 
 install:
   - pip install --upgrade cython --use-mirrors
-  - make
+  - make build_ext
 
 # command to run tests
 script:
-  - make tests
+  - make test
