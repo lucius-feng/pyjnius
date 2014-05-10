@@ -17,6 +17,11 @@ cdef extern from "jni.h":
 
 cdef JNIEnv *_platform_default_env = NULL
 
+# org.jnius.NativeInvocationHandler ships somewhere
+def internal_classpath():
+    from pkg_resources import resource_filename
+    return [resource_filename('jnius', 'java')]
+
 cdef void create_jnienv() except *:
     cdef JavaVM* jvm
     cdef JavaVMInitArgs args
@@ -26,7 +31,9 @@ cdef void create_jnienv() except *:
     import jnius_config
 
     optarr = jnius_config.options
-    optarr.append("-Djava.class.path=" + jnius_config.expand_classpath())
+
+    classpath = jnius_config.get_classpath() + internal_classpath()
+    optarr.append("-Djava.class.path=" + jnius_config.expand_classpath(classpath))
 
     options = <JavaVMOption*>malloc(sizeof(JavaVMOption) * len(optarr))
     for i, opt in enumerate(optarr):

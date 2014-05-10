@@ -1,8 +1,13 @@
 .PHONY: build_ext tests
 
-build_ext:
-	javac jnius/src/org/jnius/NativeInvocationHandler.java
-	python setup.py build_ext --inplace -f -g
+build_ext: java
+	python setup.py build_ext --inplace -g
+
+install: java
+	python setup.py install
+
+java_src = $(wildcard jnius/java/org/jnius/*.java)
+java: $(java_src:.java=.class)
 
 html:
 	$(MAKE) -C docs html
@@ -16,3 +21,6 @@ tests: build_ext
 	cd tests && javac org/jnius/ClassArgument.java
 	cd tests && javac org/jnius/MultipleDimensions.java
 	cd tests && env PYTHONPATH=..:$(PYTHONPATH) CLASSPATH=".:../jnius/src" nosetests-2.7 -v
+
+%.class: %.java
+	javac $<

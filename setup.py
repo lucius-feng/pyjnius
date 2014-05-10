@@ -1,4 +1,4 @@
-from distutils.core import setup, Extension
+from setuptools import setup, Extension
 from os import environ
 from os.path import dirname, join, exists
 import sys
@@ -124,6 +124,7 @@ setup(name='jnius',
               include_dirs=include_dirs,
               extra_link_args=extra_link_args)
           ],
+      package_data={'jnius': ['java/org/jnius/NativeInvocationHandler.class']},
       classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',

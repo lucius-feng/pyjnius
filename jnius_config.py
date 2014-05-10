@@ -67,11 +67,11 @@ def get_classpath():
 
     return [realpath('.')]
 
-def expand_classpath():
+def expand_classpath(classpath):
     from glob import glob
     paths = []
     # deal with wildcards
-    for path in get_classpath():
+    for path in classpath:
         if not path.endswith('*'):
             paths.append(path)
         else:
