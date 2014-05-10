@@ -243,6 +243,9 @@ cdef class JavaClass(object):
                 jm = value
                 if jm.is_static:
                     continue
+                # don't resolve these on the MetaJavaClass
+                jm = jm.clone()
+                self.__dict__[name] = jm
                 jm.set_resolve_info(j_env, self.j_cls, self.j_self,
                     name, self.__javaclass__)
             elif isinstance(value, JavaMultipleMethod):
@@ -495,6 +498,9 @@ cdef class JavaMethod(object):
         self.is_static = kwargs.get('static', False)
         self.is_varargs = kwargs.get('varargs', False)
 
+    def clone(self):
+        return JavaMethod(self.definition, static=self.is_static, varargs=self.is_varargs)
+
     cdef void ensure_method(self) except *:
         if self.j_method != NULL:
             return
@@ -542,8 +548,8 @@ cdef class JavaMethod(object):
         if len(args) != len(d_args):
             raise JavaException('Invalid call, number of argument mismatch')
 
-        if not self.is_static and j_env == NULL:
-            raise JavaException('Cannot call instance method on a un-instanciated class')
+        if not self.is_static and self.name is None:
+            raise JavaException('Cannot call instance method on a class')
 
         self.ensure_method()
 

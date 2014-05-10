@@ -1,5 +1,5 @@
 import unittest
-from jnius.reflect import autoclass
+from jnius import autoclass, JavaException
 
 class ReflectTest(unittest.TestCase):
 
@@ -11,3 +11,10 @@ class ReflectTest(unittest.TestCase):
         stack.push('world')
         self.assertEqual(stack.pop(), 'world')
         self.assertEqual(stack.pop(), 'hello')
+
+    def test_corruption(self):
+        Stack = autoclass('java.util.Stack')
+        stack = Stack()
+        stack.push('hello')
+
+        self.assertRaises(JavaException, Stack.push, 'hello')
